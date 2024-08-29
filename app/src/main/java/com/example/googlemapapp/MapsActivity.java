@@ -1,9 +1,18 @@
 package com.example.googlemapapp;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentActivity;
 
 import android.graphics.Color;
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -18,9 +27,13 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.example.googlemapapp.databinding.ActivityMapsBinding;
 import com.google.android.gms.maps.model.PolygonOptions;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Objects;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
+
+
 
     private GoogleMap mMap;
 private ActivityMapsBinding binding;
@@ -35,7 +48,43 @@ private ActivityMapsBinding binding;
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        Spinner spinner = findViewById(R.id.spinner);
+        ArrayList<String> arrayListSpinner = new ArrayList<>();
+
+        arrayListSpinner.add("Normal");
+        arrayListSpinner.add("Hybrid");
+        arrayListSpinner.add("Satellite");
+        arrayListSpinner.add("None");
+        arrayListSpinner.add("Terrain");
+
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+
+                if (position == 0) {
+                    mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+                } else if (position == 1) {
+                    mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+                } else if (position == 2) {
+                    mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+                } else {
+                    mMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
+                }
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                Toast.makeText(MapsActivity.this, "Normal Mode Of Map", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(getApplication(), android.R.layout.simple_list_item_1,arrayListSpinner);
+        spinner.setAdapter(adapter);
     }
+
+
+
+
 
     /**
      * Manipulates the map once available.
@@ -46,9 +95,13 @@ private ActivityMapsBinding binding;
      * it inside the SupportMapFragment. This method will only be triggered once the user has
      * installed Google Play services and returned to the app.
      */
+
+
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+
+        mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 
         // Add a marker in Sydney and move the camera
         LatLng pachod = new LatLng(19.57735019370233, 75.61142968743317);
@@ -75,5 +128,22 @@ private ActivityMapsBinding binding;
                         .position(pachod, 50f, 50f)
                         .image(BitmapDescriptorFactory.fromResource(R.drawable.bitmap))))
                 .isClickable();
+
+        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+            @Override
+            public void onMapClick(@NonNull LatLng latLng) {
+
+                mMap.addMarker(new MarkerOptions().position(latLng).title("Your just clicked here"));
+
+                Geocoder geocoder = new Geocoder(MapsActivity.this);
+                try {
+                    ArrayList<Address> arrayList = (ArrayList<Address>) geocoder.getFromLocation(latLng.latitude,latLng.longitude,1);
+                    Log.d("TAG", "onMapReady: Address you pick "+arrayList);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+
     }
 }
