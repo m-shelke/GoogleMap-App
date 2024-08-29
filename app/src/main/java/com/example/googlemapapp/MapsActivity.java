@@ -1,15 +1,24 @@
 package com.example.googlemapapp;
 
 import androidx.fragment.app.FragmentActivity;
+
+import android.graphics.Color;
 import android.os.Bundle;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CircleOptions;
+import com.google.android.gms.maps.model.GroundOverlayOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.example.googlemapapp.databinding.ActivityMapsBinding;
+import com.google.android.gms.maps.model.PolygonOptions;
+
+import java.util.Objects;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
@@ -45,6 +54,26 @@ private ActivityMapsBinding binding;
         LatLng pachod = new LatLng(19.57735019370233, 75.61142968743317);
         mMap.addMarker(new MarkerOptions().position(pachod).title("Marker in Pachod Bk"));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(pachod));
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(pachod,20f));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(pachod,17f));
+
+        mMap.addCircle(new CircleOptions()
+                .center(pachod)
+                .radius(500)
+                .fillColor(Color.BLUE)
+                .strokeColor(Color.DKGRAY));
+
+        mMap.addPolygon(new PolygonOptions()
+                .add(new LatLng(19.57735019370233, 75.61142968743317))
+                .add(new LatLng(12.57735085370233, 76.61142568743317))
+                .add(new LatLng(18.51235019370233, 74.61142974143317))
+                .add(new LatLng(21.57735012580233, 77.61142996343317))
+                .add(new LatLng(16.57735011590233, 73.61135168743317))
+                .fillColor(Color.GREEN)
+                .strokeColor(Color.DKGRAY));
+
+        Objects.requireNonNull(mMap.addGroundOverlay(new GroundOverlayOptions()
+                        .position(pachod, 50f, 50f)
+                        .image(BitmapDescriptorFactory.fromResource(R.drawable.bitmap))))
+                .isClickable();
     }
 }
